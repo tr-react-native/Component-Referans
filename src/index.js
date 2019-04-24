@@ -8,42 +8,65 @@ import {
 import {styleSayfa} from './style';
 import Kutu from './component/kutu';
 
-
+let flag = false;
 export default class Root extends Component{
     constructor(props)
     {
         super(props);
+        this.state={
+            say:[],
+        }
     }
-
+    componentWillMount()
+    {
+        let say=[];
+        for (let index = 0; index < 100; index++) {
+            say.push(false);
+        }
+        this.setState({say});
+    }
+    
     kutuPress(ref)
     {
         
-        console.log(this.refs["yakup"],'asd');
-        console.log(this.refs[0+"_kutu"],'bb');
-         
-
-        this.refs[0+"_kutu"].setState({
-            secili:true,
-        });
+        if(ref=="touchRef")
+        {
+            const kutu = this.refs[ref];
+            kutu.setNativeProps({
+                style:{
+                    backgroundColor:flag?'red':'blue',
+                }
+            });
+            console.log(kutu.props.style);
+            flag = !flag;
+            return;
+        } 
         
-        
+        //Kendi yazdığımız komponente render etmeden erişmek 
+        const kutu = this.refs[ref];
+        kutu.setState({
+            secili:!kutu.state.secili,
+        })
     }
 
     render() {
-        let say = [];
-        for (let index = 0; index < 1; index++) {
-            say.push(false);
-        }
+
+        const say = this.state.say;
+        
         const comp = say.map((data,index)=>{
+            
             const ref = index+"_kutu";
-            return(<Kutu key={index} secili={data} ref={ref} onPress={ ()=>this.kutuPress(ref) } style={{backgroundColor:'blue'}}/>)
+            return(<Kutu key={ref} secili={data} ref={ref} onPress={ ()=>this.kutuPress(ref)}/>)
         })
+        
         return (
             <View style={styleSayfa.container}>
-                 <TouchableOpacity ref={"yakup"} onPress={()=>this.kutuPress()} style={{height:100,width:200,backgroundColor:'red'}}>
-                     <Text>YAKUP DADA  ASDASD</Text>
+                 <TouchableOpacity ref={"touchRef"} onPress={()=>this.kutuPress("touchRef")} style={{height:100,width:200,backgroundColor:'red'}}>
+                     <Text>Touch Ref</Text>
                  </TouchableOpacity>
-                 {comp}
+                 <ScrollView>
+                    {comp}
+                 </ScrollView>
             </View>
         );
     }
